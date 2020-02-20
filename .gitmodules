@@ -1,0 +1,8 @@
+[submodule "challenge"]
+	path = challenge
+	url = git@github.com:klvntagoe/Functional-Programming-Challenge.git
+	branch = welp
+[submodule "challenges"]
+	path = challenges
+	url = git@github.com:klvntagoe/Functional-Programming-Challenge.git
+	branch = welp
