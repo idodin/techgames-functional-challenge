@@ -1,0 +1,199 @@
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["asciimath2jax.js"],
+  })
+</script>
+
+<h2>Tech Games Functional Programming Challenge</h2>
+
+<p>
+  This challenge has 10 problems.
+  The learn-ocaml system will mark your solutions out of 100pts but we will be grandting a 1.25 scale curve (i.e. we will 80% completion as full marks).
+  No bonus points for achieving above 80% will be awarded unforntunately.
+</p>
+<strong>Important Note 1: The number of points assigned to a problem is no indication of the it's difficulty.</strong>
+<br><br>
+<strong>Important Node 2: Download your code after every question so you have a locally saved version of your progress.
+  <br>The system's sync feature is not controlled by us so if you loose your code there is nothing we can do :(.</strong>
+
+<ol>
+  <li>
+    <h4>
+      Identity (5 points)
+    </h4>
+    Implement the identity function with the following type:
+    <pre>val identity : 'a -> 'a = &lt;fun&gt; </pre>
+  </li>
+
+  <li>
+    <h4>
+      Append (10 points)
+    </h4>
+    Implement the function append that takes as input a tuple of two lists (both of the same type) and returns a list constructed from second list appended to the first list. The function should have the following type signature:
+    <pre>val append : 'a list -> 'a list -> 'a list = &lt;fun&gt; </pre>
+  </li>
+
+  <li>
+    <h4>
+      Reverse (10 points)
+    </h4>
+    Implement the function reverse that takes in a list and reverses the order of the elements in the list.The function should have the following type signature:
+    <pre>val reverse : 'a list -> 'a list = &lt;fun&gt; </pre>
+  </li>
+
+  <li>
+    <h4>
+      Find the Nth Element in a List (15 points)
+    </h4>
+    Given a list l and an integer n, traverse l to see if there exists an element at the nth position (assuming 0-indexing). If said elements exists return it (this assumes the requirements of option types). Implement this functionality by completing the findNthElement function. findNthElement should have the following type signature:
+    <pre>'a list * int -> 'a option = &lt;fun&gt; </pre>
+  </li>
+
+  <li>
+    <h4>
+      Replicate Some Elements in a List (10 points)
+    </h4>
+    Implement the function replicateSomeElements that takes as input a predicate p, list l, and integer n. This function should then output a modified version of l, where all elements that satisfy p are repeated n times consecutively (starting at the relative position of a given element that passed the predicate). This function should have the following type signature:
+    <pre>val replicateSomeElements : ('a -> bool) * 'a list * int -> 'a list = &lt;fun&gt; </pre>
+    Below is an example of a command line execution of replicateSomeElements with an even parity predicate, a list composed of the numbers 1-6, and replication count of 3:
+    <pre>
+# let even x = (x mod 2 = 0);;                             
+val even : int -> bool = &lt;fun&gt;
+# let l = [1;2;3;4;5;6];;
+val l : int list = [1; 2; 3; 4; 5; 6]
+# let n = 3;;
+val n : int = 3
+# replicateSomeElements (even, l, n);;
+- : int list = [1; 2; 2; 2; 3; 4; 4; 4; 5; 6; 6; 6]
+    </pre>
+  </li>
+
+  <li>
+    <h4>
+      Enumarate the K-Combinations of a List (10 points)
+    </h4>
+    Given an n element list l, and an integer k, generate all the combinations of k distinct objects chosen from the N elements in l.
+    <p>
+      <strong>Hint</strong>: Consider the recursive definiction of the <code>C(n,k)</code>.
+    </p>
+    This function should have the following type signature:
+    <pre>'a list * int -> 'a list list = &lt;fun&gt; </pre>
+  </li>
+
+  <h3>
+    <br>
+    Lets talk about Trees: 
+  </h3>
+  <p>
+    Consider a tree defined by the following:
+    <pre>type 'a tree = Node of 'a * 'a tree list</pre>
+    This type declaration allows us to represent trees of any arity. Furthermore this definition enforces the requirements that all trees must have at least one Node (i.e. we cannot have "Empty" valued leaves/trees). We will use this definition in the next 3 problems.
+  </p>
+
+  <li>
+    <h4>
+      Count the number of Nodes in a Tree (15 points)
+    </h4>
+    Given a tree t with arbitrary arity throughout each node, implement the function countNodes that counts the number of nodes in a t.
+    <p>
+      <strong>Hint</strong>: This can be implemented in 3 lines using a higher-order function (since a node's children are stored in a list). How can we aggregate counts in this situation?
+    </p>
+    This function should have the following type signature:
+    <pre>val countNodes : 'a tree -> int = &lt;fun&gt; </pre>
+  </li>
+
+  <li>
+    <h4>
+      Search a Tree for a Node (10 points)
+    </h4>
+    Given a tree t with arbitrary arity throughout each node, and a predicate p, implement the function findNode that returns ANY node in t that satisfies p.
+    <p>
+      <strong>Observation</strong>: Why do we use a predicate to search the tree? We want our function to be polymorphic, hence the predicate can be used to encapsulate any comparator along with a value for which we want to find.
+    </p>
+    This function should have the following type signature:
+    <pre>val findNode : ('a -> bool) * 'a tree -> 'a option = &lt;fun&gt; </pre>
+  </li>
+
+  <h3>
+    <br>
+    Fold vs Unfold: 
+  </h3>
+  <p>
+    Fold (also known as reduce) is a popular higher-order functonal method used to aggregate/sumarize information from a bag of elements. This is usually conducted by presenting an aggregation function and state value that are used in conjunction to accumulate information when travering the bag.
+  </p>
+  <p>
+    We now introduce the concept of unfold, which acts as the reverse (or to be mathematically accurate "the categorical dual") of fold. Here we use an expansion function and state value to generate a bag of elements. For the sake of simplcity, we will only consider the unfold function for lists. We present an implementaton of unfold (in the prelude and below) for lists which takes as input an expansion/generator function, a stop predicate, and a state, and outputs a list generated from the specification of the input. 
+    Below is the implementation available in the prelude:
+    <pre>
+let rec unfold (f: 'seed -> ('a * 'seed)) (stop : 'b -> bool) (b : 'seed) : 'a list =
+  if stop b then []
+  else
+    begin
+      let x, b' = f b in
+      x :: (unfold f stop b')
+    end
+;;
+val unfold : ('b -> 'a * 'b) -> ('b -> bool) -> 'b -> 'a list = &lt;fun&gt;
+</pre>
+    We see that the generator function takes as input an initial state and generates a new element and a new state. Furthermore, the stop predicate is used to determine when to stop generating elements (since bags are of finite size), conditioned on the state. 
+  </p>
+  <p>
+    We present 2 examples of the use of unfold, available in the prelude, and will use this function to implement the final 2 questions.
+  </p>
+
+  <li>
+    <h4>
+      Fibonacci Sequence (10 points)
+    </h4>
+    Implement the function fib that takes an input an integer n and generate a list composed of the fibonacci sequcne up to (and including) n.
+    <br><br>
+    Below is an example of the expected command line execution of fib:
+    <pre>
+# fib 0;;
+- : int list = []
+# fib 1;;
+- : int list = [1; 1]
+# fib 2;;
+- : int list = [1; 1; 2]
+# fib 3;;
+- : int list = [1; 1; 2; 3]
+# fib 20;;
+- : int list = [1; 1; 2; 3; 5; 8; 13]
+# fib 21;;
+- : int list = [1; 1; 2; 3; 5; 8; 13; 21]
+</pre>
+    <strong>Hint</strong>: Consider an initial state/seed <code>(fib 0, fib 1) = (1,1)</code>.
+    <br><br>
+    This function should have the following type signature:
+    <pre>val fib : int -> int list = &lt;fun&gt; </pre>
+  </li>
+
+  <li>
+    <h4>
+      Pascal's Triangle (5 points)
+    </h4>
+    Implement the function pascal that takes an input an integer n and generate a list composed of the rows of pascal's triangle up to (and excluding) n. <strong>Note</strong>: Here we want to generate a list of lists, where the index <code>i</code> the outer most list corresponds to row <code>(i+1)</code> in pascal's triangle.
+    <br><br>
+    Below is an example of the expected command line execution of fib:
+    <pre>
+# pascal 0;;
+- : int list list = []
+# pascal 1;;
+- : int list list = []
+# pascal 2;;
+- : int list list = [[1]]
+# pascal 3;;
+- : int list list = [[1]; [1; 1]]
+# pascal 10;;
+- : int list list =
+[[1]; [1; 1]; [1; 2; 1]; [1; 3; 3; 1]; [1; 4; 6; 4; 1]; [1; 5; 10; 10; 5; 1];
+ [1; 6; 15; 20; 15; 6; 1]; [1; 7; 21; 35; 35; 21; 7; 1];
+ [1; 8; 28; 56; 70; 56; 28; 8; 1]]
+</pre>
+    <strong>Hint</strong>: Consider the higher order function List.map2.
+    <br><br>
+    This function should have the following type signature:
+    <pre>val pascal : int -> int list list = &lt;fun&gt; </pre>
+  </li>
+
+</ol>
