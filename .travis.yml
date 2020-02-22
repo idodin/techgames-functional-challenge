@@ -3,7 +3,7 @@ language: c
 services:
         - docker
 
-before_install:
+script:
         - docker build -t idodin/functional:latest .
 
 deploy:
